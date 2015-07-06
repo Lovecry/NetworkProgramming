@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkServer", "..\NetworkProgramming\NetworkServer\NetworkServer.vcxproj", "{62A387E3-1B29-4337-86FD-9B6F87CABF78}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetworkProgrammingServer", "..\NetworkProgrammingServer\NetworkProgrammingServer\NetworkProgrammingServer.vcxproj", "{62A387E3-1B29-4337-86FD-9B6F87CABF78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
