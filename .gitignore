@@ -125,6 +125,7 @@ DocProject/Help/html
 
 # Click-Once directory
 publish/
+SFML-2.3/
 
 # Publish Web Output
 *.[Pp]ublish.xml
