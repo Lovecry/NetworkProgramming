@@ -14,30 +14,26 @@ void Client::Initialize() {
 	clientShape.setRadius(20);
 	clientShape.setPosition(750, 0);
 
-	// Create a socket and bind it to the port 55001
-	socket.bind(55001);
+	socket.bind(port);
 	socket.setBlocking(false);
 }
 
 void Client::Update() {
 	window.clear();
 
-	//while (window.pollEvent(event))
-	//{
-		if (event.type == sf::Event::Closed)
-			window.close();
-		// Send a message to 192.168.1.50 on port 55002
-		std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
-		socket.send(message.c_str(), message.size() + 1, "", 55002);
-		//Receive an answer (most likely from 192.168.1.50, but could be anyone else)
-		socket.receive(packet, sender, port);
-		//socket.receive(buffer, sizeof(buffer), received, sender, port);
-		//std::cout << sender.toString() << " said: " << buffer << std::endl;
-		packet >> positionX >> positionY;
-		std::cout << sender.toString() << " said: " << positionX << positionY << std::endl;
-	//}
-	
-		serverShape.setPosition(positionX , positionY);
+	if (event.type == sf::Event::Closed)
+		window.close();
+
+	std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
+	socket.send(message.c_str(), message.size() + 1, ipServer, 55002); //Send Message to ipServer at port
+
+	socket.receive(packet, sender, portServer); //Receve message from sender (ip) at port(portServer)
+	float positionX, positionY;
+	packet >> positionX >> positionY; // Decripd Packet
+
+	std::cout << sender.toString() << " said: " << positionX << " , " <<positionY << std::endl;
+		
+	serverShape.setPosition(positionX , positionY); //Update position of Server Shape
 
 	window.draw(clientShape);
 	window.draw(serverShape);

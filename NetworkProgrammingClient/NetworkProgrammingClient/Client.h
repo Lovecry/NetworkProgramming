@@ -21,13 +21,12 @@ private:
 	sf::CircleShape serverShape;
 
 	sf::UdpSocket socket;
-	sf::IpAddress sender;
-	char buffer[1024];
-	std::size_t received = 0;
-	unsigned short port;
+	sf::IpAddress ipServer = "127.0.0.1"; // ip of server (where i send)
+	unsigned short port = 55001; // My port from where i send
+
+	sf::IpAddress sender; // ip adress of message sender (that client receive)
+	unsigned short portServer = 55002; // port of sender (Server)
+
 	sf::Event event;
 	sf::Packet packet;
-
-	float positionX, positionY;
-
 };
