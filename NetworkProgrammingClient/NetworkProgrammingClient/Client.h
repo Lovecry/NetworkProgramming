@@ -39,7 +39,7 @@ private:
 	unsigned short portClientUDP= 56002;
 	unsigned short portServerUDP = 55002;
 
-	sf::IpAddress IpServer="157.27.143.153";
+	sf::IpAddress IpServer="127.0.0.1";
 	//sf::IpAddress IpServer = "192.168.43.112";
 	
 	unsigned short port;

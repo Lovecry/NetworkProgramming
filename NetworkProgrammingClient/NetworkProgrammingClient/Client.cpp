@@ -175,9 +175,7 @@ void Client::EventHandle()
 	static int count  = 0;
 	if (event.type == sf::Event::Closed) window.close();
 
-	
-	
-	if (count%20==0){
+	if (count%10==0){
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))	{ sendDataUdp(1, 0); }
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))	{ sendDataUdp(-1, 0); }
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))	{ sendDataUdp(0, -1); }
