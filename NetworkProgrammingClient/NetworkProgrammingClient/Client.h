@@ -14,19 +14,40 @@ public:
 	void Initialize();
 	void Update();
 	bool clieWinIsOpen();
-
+	void draw();
+	void sendPacketTcp();
+	void receivePacket();
+	void InitializeNetwork();
+	void UpdateNetwork();
+	void sendDataUdp(float , float);
+	void receiveDataUdp();
+	void EventHandle();
 private:
+
+	//Graphic
 	sf::RenderWindow window;
 	sf::CircleShape clientShape;
 	sf::CircleShape serverShape;
 
-	sf::UdpSocket socket;
-	sf::IpAddress sender;
+	//Tcp
+	sf::TcpSocket socketTCP;
+	//unsigned short portClientTCP = 55001;
+	unsigned short portServerTCP = 56001;
+
+	//Udp
+	sf::UdpSocket socketUDP;
+	unsigned short portClientUDP= 56002;
+	unsigned short portServerUDP = 55002;
+
+	sf::IpAddress IpServer="157.27.143.153";
+	//sf::IpAddress IpServer = "192.168.43.112";
+	
+	unsigned short port;
 	char buffer[1024];
 	std::size_t received = 0;
-	unsigned short port;
+	
 	sf::Event event;
-	sf::Packet packet;
+	
 
 	float positionX, positionY;
 
