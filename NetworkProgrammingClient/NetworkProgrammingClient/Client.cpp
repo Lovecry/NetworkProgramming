@@ -2,18 +2,24 @@
 
 void Client::Initialize() {
 	window.create(sf::VideoMode(800, 600), "SFML works!");
-	window.setPosition({ 500, 100 });
+	window.setPosition({ 1000, 100 });
 
 	serverShape = sf::CircleShape(50, 6);
 	serverShape.setFillColor(sf::Color::Red);
-	serverShape.setRadius(10);
+	serverShape.setRadius(20);
 	serverShape.setPosition(0, 0);
 
 	clientShape = sf::CircleShape(50, 6);
 	sf::Color colorClient(10,255,10,50);
 	clientShape.setFillColor(colorClient);
-	clientShape.setRadius(10);
+	clientShape.setRadius(20);
 	clientShape.setPosition(0,0);
+
+	interpoledShape = sf::CircleShape(50, 6);
+	sf::Color colorInterpoled(255, 255, 0, 50);
+	interpoledShape.setFillColor(colorInterpoled);
+	interpoledShape.setRadius(20);
+	interpoledShape.setPosition(0, 0);
 
 	InitializeNetwork();
 
@@ -22,7 +28,8 @@ void Client::Initialize() {
 void Client::draw(){
 	window.clear();
 	window.draw(serverShape);
-	window.draw(clientShape);	
+	window.draw(clientShape);
+	window.draw(interpoledShape);
 	window.display();
 }
 
@@ -30,56 +37,15 @@ void Client::Update() {
 	
 	EventHandle();
 	receiveDataUdp();
-	//sendPacketTcp();
-	//while (window.pollEvent(event))
-	//{
-	//	if (event.type == sf::Event::Closed)
-	//		window.close();
-	//	// Send a message to 192.168.1.50 on port 55002
-	//	std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
-	//	socket.send(message.c_str(), message.size() + 1, "", 55002);
-	//	//Receive an answer (most likely from 192.168.1.50, but could be anyone else)
-	//	socket.receive(packet, IpServer, port);
-	//	//socket.receive(buffer, sizeof(buffer), received, sender, port);
-	//	//std::cout << sender.toString() << " said: " << buffer << std::endl;
-	//	packet >> positionX >> positionY;
-	//	
-	//	
-	//	
-	//	if (IpServer.toString() == "0.0.0.0")
-	//	{
-	//		std::cout << "NOT VALID "<<IpServer.toString() << " said: " << positionX << " " << positionY << std::endl;
-	//	}
-	//	else{
-	//		std::cout << "VALID " << IpServer.toString() << " said: " << positionX << " " << positionY << std::endl;
-	//	}
-	//	
-	////}
-	//
-	//	serverShape.setPosition(positionX , positionY);
 
-		draw();
-
+	draw();
 }
 
 void Client::sendPacketTcp(){
-	//char data[100] = "Inviatooooooooooo";
-
-	//// TCP socket:
-	//if (socketTCP.send(data, 100) != sf::Socket::Done)
-	//{
-	//	std::cout << "error SEND" << std::endl;
-	//	// error...
-	//}
-	//else{
-	//	std::cout << "SEND" << std::endl;
-	//}
-	
 	sf::Packet packet;
 
 	packet << "Sono io";
 	socketTCP.send(packet);
-
 }
 
 
@@ -88,8 +54,6 @@ void Client::sendDataUdp(float x, float y){
 	
 	sf::Vector2<float> velocity(x,y);
 	sf::Packet packetUdp;
-
-	clientShape.move(velocity);
 
 	//create packet
 	packetUdp << clientShape.getPosition().x << clientShape.getPosition().y << velocity.x << velocity.y;
@@ -106,27 +70,30 @@ void Client::sendDataUdp(float x, float y){
 
 void Client::receiveDataUdp(){
 	
-	sf::Vector2<float> position;
+	sf::Vector2<float> position, newInterpoledPosition;
 	
 	sf::Packet packetUdp;	
 	sf::IpAddress IpAddress;
 	unsigned short port;
-	
 		
 	if (socketUDP.receive(packetUdp, IpAddress, port) == sf::Socket::Done){
 		if (packetUdp >> position.x >> position.y){
 			//encapsule data
 			serverShape.setPosition(position);
+			newInterpoledPosition = interpoledCalculate(position);
+			interpoledShape.setPosition(newInterpoledPosition);
 		}
 		std::cout << " receive server: " << position.x << " " << position.y << std::endl;
 	}
-	else
-	{
-		//std::cout << " not" << std::endl;
-	}
+}
 
-	
+sf::Vector2<float> Client::interpoledCalculate(sf::Vector2<float> position)
+{
+	sf::Vector2<float> newInterpoledPosition;
 
+	newInterpoledPosition = (clientShape.getPosition() + position) / 2.f;
+
+	return newInterpoledPosition;
 }
 
 void Client::receivePacket(){
@@ -172,14 +139,52 @@ void Client::UpdateNetwork(){
 
 void Client::EventHandle()
 {
-	static int count  = 0;
 	if (event.type == sf::Event::Closed) window.close();
+	
+	static int count = 0; // Non inviamo i pacchetti ogni frame ma ogni 10
+	int limitCount = 5;
 
-	if (count%10==0){
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))	{ sendDataUdp(1, 0); }
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))	{ sendDataUdp(-1, 0); }
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))	{ sendDataUdp(0, -1); }
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))	{ sendDataUdp(0, 1); }
+	sf::Vector2<float> velocity,newPosition;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))	{ 
+		if (count % limitCount == 0){
+			sendDataUdp(1, 0);
+		}
+		velocity = { 1, 0 };
+		newPosition = clientSidePrediction(velocity);
+		clientShape.setPosition(newPosition);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))	{ 
+		if (count % limitCount == 0){
+			sendDataUdp(-1, 0);
+		}
+		velocity = { -1, 0 };
+		newPosition = clientSidePrediction(velocity);
+		clientShape.setPosition(newPosition);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))	{ 
+		if (count % limitCount == 0){
+			sendDataUdp(0, -1);
+		}
+		velocity = { 0, -1 };
+		newPosition = clientSidePrediction(velocity);
+		clientShape.setPosition(newPosition);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))	{ 
+		if (count % limitCount == 0){
+			sendDataUdp(0, 1);
+		}
+		velocity = { 0, 1 };
+		newPosition = clientSidePrediction(velocity);
+		clientShape.setPosition(newPosition);
 	}
 	count++;
+}
+
+sf::Vector2<float> Client::clientSidePrediction(sf::Vector2<float> velocity)
+{
+	sf::Vector2<float> newPosition;
+
+	newPosition = clientShape.getPosition() + velocity;
+
+	return newPosition;
 }

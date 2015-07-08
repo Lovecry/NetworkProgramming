@@ -14,6 +14,9 @@ public:
 	void Initialize();
 	void Update();
 	bool clieWinIsOpen();
+
+private:
+
 	void draw();
 	void sendPacketTcp();
 	void receivePacket();
@@ -22,12 +25,16 @@ public:
 	void sendDataUdp(float , float);
 	void receiveDataUdp();
 	void EventHandle();
+	sf::Vector2<float> clientSidePrediction(sf::Vector2<float>);
+	sf::Vector2<float> interpoledCalculate(sf::Vector2<float>);
+
 private:
 
 	//Graphic
 	sf::RenderWindow window;
 	sf::CircleShape clientShape;
 	sf::CircleShape serverShape;
+	sf::CircleShape interpoledShape;
 
 	//Tcp
 	sf::TcpSocket socketTCP;

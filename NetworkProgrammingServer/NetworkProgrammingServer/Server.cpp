@@ -10,15 +10,9 @@ void Server::InitializeGraphic()
 	window.create(sf::VideoMode(800, 600), "SFML works!");
 	window.setPosition({ 100, 100 });
 
-	serverShape = sf::CircleShape(80, 6);
-	serverShape.setFillColor(sf::Color::Red);
-	serverShape.setRadius(20);
-	serverShape.setPosition(0, 0);
-
 	clientShape = sf::CircleShape(80, 10);
 	clientShape.setFillColor(sf::Color::Green);
 	clientShape.setRadius(20);
-	clientShape.setPosition(750, 0);
 }
 
 void Server::InitializeNetwork()
@@ -78,10 +72,6 @@ void Server::Update() {
 			std::cout << "New Position SENDED" << std::endl;
 		}
 	}
-	else
-	{
-		std::cout << "ERROR Receiving" << std::endl;
-	}
 }
 
 bool Server::validateMovement(sf::Vector2<float> position, sf::Vector2<float> velocity)
@@ -91,6 +81,7 @@ bool Server::validateMovement(sf::Vector2<float> position, sf::Vector2<float> ve
 
 sf::Vector2<float> Server::updatePosition(sf::Vector2<float> position, sf::Vector2<float> velocity)
 {
+	clientShape.setPosition(position + velocity);
 	return position + velocity;
 }
 
@@ -119,7 +110,6 @@ void Server::EventHandle()
 void Server::UpdateGraphic()
 {
 	window.clear();
-	window.draw(serverShape);
 	window.draw(clientShape);
 	window.display();
 }

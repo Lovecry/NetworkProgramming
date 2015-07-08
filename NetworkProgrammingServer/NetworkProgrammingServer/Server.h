@@ -30,7 +30,6 @@ private:
 	// Graphic
 	sf::RenderWindow window;
 	sf::CircleShape clientShape;
-	sf::CircleShape serverShape;
 
 	//Input
 	sf::Event event;
